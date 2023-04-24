@@ -67,7 +67,6 @@ bot.on('interactionCreate', async (interaction) => {
       return
     } catch (err: any) {
       console.log(err.message)
-      //await interaction.reply({ content: 'Error!!!', ephemeral: true })
       return
     }
   }
