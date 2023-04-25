@@ -130,6 +130,7 @@ bot.once('ready', async () => {
 
 bot.login(config.token)
 
+// Simple HTTP server to capture twitter authorization requests
 const authorizer = async (req: http.IncomingMessage, res: http.ServerResponse) => {
   const id = req.url?.split('&code')[0].split('state=')[1]
   if (id) {
@@ -137,7 +138,6 @@ const authorizer = async (req: http.IncomingMessage, res: http.ServerResponse) =
       const record = (await db.get(id)) as any
       if (record) {
         try {
-          console.log(record)
           const user = (await db.get(record.username)) as UserRecord
           user.twitter = record.twitter
         } catch {
