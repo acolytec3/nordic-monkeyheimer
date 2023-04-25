@@ -21,7 +21,7 @@ const bot = new Client({ intents: [GatewayIntentBits.Guilds] })
 
 const commands = new Collection()
 const commandsPath = join(__dirname, 'commands')
-const commandFiles = readdirSync(commandsPath).filter((file) => file.endsWith('.ts'))
+const commandFiles = readdirSync(commandsPath).filter((file) => file.endsWith('.ts') || file.endsWith('.js'))
 for (const file of commandFiles) {
   const filePath = join(commandsPath, file)
   const command = await import(filePath)
@@ -29,7 +29,7 @@ for (const file of commandFiles) {
 }
 const modals = new Collection()
 const modalsPath = join(__dirname, 'modals')
-const modalFiles = readdirSync(modalsPath).filter((file) => file.endsWith('.ts'))
+const modalFiles = readdirSync(modalsPath).filter((file) => file.endsWith('.ts') || file.endsWith('.js'))
 for (const file of modalFiles) {
   const modalPath = join(modalsPath, file)
   const modal = await import(modalPath)
@@ -38,7 +38,7 @@ for (const file of modalFiles) {
 
 const buttons = new Collection()
 const buttonsPath = join(__dirname, 'buttons')
-const buttonFiles = readdirSync(buttonsPath).filter((file) => file.endsWith('.ts'))
+const buttonFiles = readdirSync(buttonsPath).filter((file) => file.endsWith('.ts') || file.endsWith('.js'))
 for (const file of buttonFiles) {
   const buttonPath = join(buttonsPath, file)
   const button = await import(buttonPath)
