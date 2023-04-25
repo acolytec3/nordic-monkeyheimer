@@ -11,7 +11,7 @@ import { TwitterApi } from 'twitter-api-v2'
 import { createRequire } from 'module'
 import { RaidRecord, UserRecord } from '../types.js'
 const require = createRequire(import.meta.url)
-const config = require('../../config.json')
+const config = require('../config.json')
 const client = new TwitterApi(config.twitterAPIKey)
 
 const twitterIdModal = new ModalBuilder().setCustomId('twitterId').setTitle('Connect Twitter')

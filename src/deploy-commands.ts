@@ -5,7 +5,7 @@ import { readdirSync} from 'node:fs'
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-import config from '../config.json' assert { type: 'json' }
+import config from './config.json' assert { type: 'json' }
 
 const commands = []
 

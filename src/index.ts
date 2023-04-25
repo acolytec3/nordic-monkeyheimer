@@ -15,7 +15,7 @@ import * as http from 'http'
 import { TwitterRegistrationRecord, UserRecord } from './types.js'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const require = createRequire(import.meta.url)
-const config = require('../config.json')
+const config = require('./config.json')
 const db = new Level<string, object>('./src/db', { valueEncoding: 'json' })
 const bot = new Client({ intents: [GatewayIntentBits.Guilds] })
 

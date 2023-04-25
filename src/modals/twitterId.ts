@@ -3,7 +3,7 @@ import { Level } from 'level'
 import { createRequire } from 'module'
 import { TwitterApi } from 'twitter-api-v2'
 const require = createRequire(import.meta.url)
-const config = require('../../config.json')
+const config = require('../config.json')
 const client = new TwitterApi({clientId: config.twitterClientId, clientSecret: config.twitterClientSecret})
 const execute = async (interaction: ModalSubmitInteraction, db: Level<string, object>) => {
   const link = client.generateOAuth2AuthLink(config.ngrokLink, {
