@@ -16,10 +16,10 @@ const execute = async (interaction: ChatInputCommandInteraction, db: Level<strin
     }
   } catch (err: any) {
     if (err.code === 'LEVEL_NOT_FOUND') {
-      await interaction.reply(`Your balance is 0 $MOON`) 
+      await interaction.reply({ content: `Your balance is 0 $MOON`, ephemeral: true}) 
       await db.put(interaction.user.username, { balance: '0', twitter: ''})
     }
-    else await interaction.reply(`Something went wrong.  Please try again later`)
+    else await interaction.reply({content: `Something went wrong.  Please try again later`, ephemeral: true})
   }
 }
 
