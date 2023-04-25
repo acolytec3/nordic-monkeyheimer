@@ -9,7 +9,7 @@ const description = new SlashCommandBuilder()
   )
   .addUserOption((option) =>
     option.setName('user').setDescription('user whose balance is being adjusted').setRequired(true)
-  ).setDefaultMemberPermissions(1)
+  ).setDefaultMemberPermissions(1)  // Limit this command to mods (i.e. people who can manage the channel)
 
 const execute = async (interaction: ChatInputCommandInteraction, db: Level<string, object>) => {
   const amount = parseInt(interaction.options.get('amount')!.value! as string)

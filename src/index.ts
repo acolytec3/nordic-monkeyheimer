@@ -12,7 +12,7 @@ import { createRequire } from 'module'
 import { fileURLToPath } from 'url'
 import { Level } from 'level'
 import * as http from 'http'
-import { UserRecord } from './types.js'
+import { TwitterRegistrationRecord, UserRecord } from './types.js'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const require = createRequire(import.meta.url)
 const config = require('../config.json')
@@ -135,7 +135,9 @@ const authorizer = async (req: http.IncomingMessage, res: http.ServerResponse) =
   const id = req.url?.split('&code')[0].split('state=')[1]
   if (id) {
     try {
-      const record = (await db.get(id)) as any
+      // Retrieve twitter registration record from DB
+      const record = (await db.get(id)) as TwitterRegistrationRecord
+
       if (record) {
         try {
           const user = (await db.get(record.username)) as UserRecord
@@ -143,6 +145,7 @@ const authorizer = async (req: http.IncomingMessage, res: http.ServerResponse) =
         } catch {
           await db.put(record.username, { twitter: record.twitter, balance: '0' })
         }
+        await db.del(id) // Delete twitter registration record once fulfilled
       } else {
         res.setHeader('Content-Type', 'application/json')
         res.writeHead(400)
