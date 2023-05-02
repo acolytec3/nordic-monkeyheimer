@@ -80,7 +80,7 @@ const execute = async (interaction: ButtonInteraction, db: Level<string, object>
       console.log(tweet, record)
       // Verify that user's twitter handle appears in list of likes
       await interaction.reply({
-        content: `Your $MOON is on its way ${record.twitter}`,
+        content: `Your $${config.currency} is on its way ${record.twitter}`,
         ephemeral: true,
       })
       record.balance = (parseInt(record.balance ?? '0') + parseInt(tweet.reward)).toString()

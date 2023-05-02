@@ -114,7 +114,7 @@ bot.once('ready', async () => {
     )
     let hook
     if (webhooks.size === 0) {
-      // Set up a new raid2Earn webhook if not found
+      // Set up a new tweet2raid webhook if not found
       hook = await tweet2raid.createWebhook({
         name: 'Moon Math Raider',
       })

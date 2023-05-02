@@ -49,7 +49,7 @@ const execute = async (interaction: ButtonInteraction, db: Level<string, object>
               },
               {
                 type: 2,
-                label: 'Give me $MOON',
+                label: `Give me $${config.currency}`,
                 style: 1,
                 custom_id: 'earn',
               },

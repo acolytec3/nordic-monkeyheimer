@@ -1,6 +1,7 @@
 export type UserRecord = {
     twitter: string
     balance: string
+    inventory?: any[]
   }
   
 export type RaidRecord = {
