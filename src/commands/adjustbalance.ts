@@ -16,15 +16,19 @@ const execute = async (interaction: ChatInputCommandInteraction, db: Level<strin
   const user = interaction.options.get('user')!.user!.username!
   try {
     const record = (await db.get(user)) as UserRecord
-    if (record.balance !== undefined) {
+    console.log(record, amount, record.balance === 'NaN')
+
+    if (record.balance !== undefined && record.balance !== 'NaN') {
       if (parseInt(record.balance) + amount < 0) {
         await interaction.reply({content: 'Balance cannot go negative', ephemeral: true})
         return
       }
       record.balance = (parseInt(record.balance) + amount).toString()
     } else {
-      record.balance = amount > 0 ? amount.toString() : '0'
+      console.log('no balance')
+      record.balance = amount.toString()
     }
+    console.log(record.balance)
     await db.put(user, record)
     await interaction.reply({
       content: `${user}'s balance has been updated to ${record.balance}`,

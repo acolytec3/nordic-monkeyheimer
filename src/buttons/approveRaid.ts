@@ -16,7 +16,7 @@ const execute = async (interaction: ButtonInteraction, db: Level<string, object>
   const tweetsDb = await db.sublevel<string, object>('tweets', { keyEncoding: 'utf8', valueEncoding: 'json' })
   await tweetsDb.open()
   try {
-    const tweet = await tweetsDb.get(tweetId + 'like')
+    const tweet = await tweetsDb.get(tweetId)
     if (tweet === undefined) {
       throw new Error('raid not started')
     }
@@ -29,7 +29,7 @@ const execute = async (interaction: ButtonInteraction, db: Level<string, object>
     await interaction.showModal(modal)
     const res = await interaction.awaitModalSubmit({ time: 10000, filter})
     const reward = res.fields.fields.get('reward')
-    await tweetsDb.put(tweetId + 'like', { type: 'like', handles: [], reward: reward ?? '100'})
+    await tweetsDb.put(tweetId, { handles: [], reward: reward?.value ?? '100'})
     const res2 = await fetch(config.raid2earnWebhook, {
       method: 'POST',
       headers: {
@@ -49,6 +49,12 @@ const execute = async (interaction: ButtonInteraction, db: Level<string, object>
               },
               {
                 type: 2,
+                label: 'Retweet 🔁',
+                style: 5,
+                url: 'https://twitter.com/intent/retweet?tweet_id=' + tweetId,
+              },
+              {
+                type: 2,
                 label: `Give me $${config.currency}`,
                 style: 1,
                 custom_id: 'earn',
@@ -64,7 +70,7 @@ const execute = async (interaction: ButtonInteraction, db: Level<string, object>
 
 const button = {
   execute: execute,
-  name: 'likeRaid',
+  name: 'approveRaid',
 }
 
 export default button

@@ -1,12 +1,14 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js'
 import { Level } from 'level'
 import { UserRecord } from '../types.js'
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
 const config = require('../config.json')
 const description = new SlashCommandBuilder()
   .setName('balance')
   .setDescription('how much moolah do I have?')
 
-const execute = async (interaction: ChatInputCommandInteraction, db: Level<string, object>) => {
+const execute = async (interaction: ChatInputCommandInteraction, db: Level<string, object>) => {  
   try {
     const record = (await db.get(interaction.user.username)) as UserRecord
     if (record.balance !== undefined) {

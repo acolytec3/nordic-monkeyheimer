@@ -27,18 +27,13 @@ const execute = async (interaction: ButtonInteraction, db: Level<string, object>
   try {
     try {
       record = (await db.get(interaction.user.username)) as UserRecord
-      if (record.twitter === undefined || record.twitter === '') throw new Error('no twitter handle')
-
+      if (record.twitter === undefined || record.twitter === '')
+        throw new Error('no twitter handle')
     } catch {
       // Twitter isn't registered with app
       await interaction.showModal(twitterIdModal)
       return
     }
-    const raidType = (
-      (interaction.message.components[0].components[0].data as ButtonComponent).label?.split(
-        ' '
-      )[0] ?? ''
-    ).toLowerCase()
 
     const tweetId = interaction.message.content.split('/status/')[1]
     const tweetsDb = await db.sublevel<string, object>('tweets', {
@@ -46,7 +41,7 @@ const execute = async (interaction: ButtonInteraction, db: Level<string, object>
       valueEncoding: 'json',
     })
 
-    const tweet = (await tweetsDb.get(tweetId + raidType)) as RaidRecord
+    const tweet = (await tweetsDb.get(tweetId)) as RaidRecord
     if (tweet.handles.filter((el) => el === interaction.user.id).length > 0) {
       // Check to see if user already interacted with tweet
       await interaction.reply({
@@ -58,26 +53,21 @@ const execute = async (interaction: ButtonInteraction, db: Level<string, object>
     let interactions
     let interactionByUser = []
 
-    switch (raidType) {
-      case 'like': {
-        interactions = await client.readOnly.v2.tweetLikedBy(tweetId)
-        interactionByUser = interactions.data.filter(
-          (el: { id: string; name: string; username: string }) => el.username === record.twitter
-        )
-        break
-      }
-      case 'retweet': {
-        interactions = await client.readOnly.v2.tweetRetweetedBy(tweetId)
-        console.log(interactions)
-        interactionByUser = interactions.data.filter(
-          (el: { id: string; name: string; username: string }) => el.username === record.twitter
-        )
-        break
-      }
+    // Check to see if user liked tweet
+    interactions = await client.readOnly.v2.tweetLikedBy(tweetId)
+    interactionByUser = interactions.data !== undefined ? interactions.data.filter(
+      (el: { id: string; name: string; username: string }) => el.username === record.twitter
+    ) : []
+
+    if (interactionByUser.length === 0) {
+      // only check for retweets if no likes found
+      interactions = await client.readOnly.v2.tweetRetweetedBy(tweetId)
+      interactionByUser = interactions.data !== undefined ? interactions.data.filter(
+        (el: { id: string; name: string; username: string }) => el.username === record.twitter
+      ) : []
     }
 
-    if (interactionByUser.length === 1) {
-      console.log(tweet, record)
+    if (interactionByUser.length >= 1) {
       // Verify that user's twitter handle appears in list of likes
       await interaction.reply({
         content: `Your $${config.currency} is on its way ${record.twitter}`,
@@ -88,7 +78,7 @@ const execute = async (interaction: ButtonInteraction, db: Level<string, object>
       tweet.handles.push(interaction.user.id)
       await tweetsDb.put(tweetId, tweet) // Update raid record
     } else {
-      await interaction.reply({ content: `You ain't raided nothing!`, ephemeral: true })
+      await interaction.reply({ content: `You do not appear to have done any raiding.  If you have, please try again in a few minutes.`, ephemeral: true })
     }
   } catch (err) {
     console.log(err)

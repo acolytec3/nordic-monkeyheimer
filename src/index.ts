@@ -5,6 +5,7 @@ import {
   TextChannel,
   createChannel,
   HTTPError,
+  MessagePayload,
 } from 'discord.js'
 import { readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -21,7 +22,9 @@ const bot = new Client({ intents: [GatewayIntentBits.Guilds] })
 
 const commands = new Collection()
 const commandsPath = join(__dirname, 'commands')
-const commandFiles = readdirSync(commandsPath).filter((file) => file.endsWith('.ts') || file.endsWith('.js'))
+const commandFiles = readdirSync(commandsPath).filter(
+  (file) => file.endsWith('.ts') || file.endsWith('.js')
+)
 for (const file of commandFiles) {
   const filePath = join(commandsPath, file)
   const command = await import(filePath)
@@ -29,7 +32,9 @@ for (const file of commandFiles) {
 }
 const modals = new Collection()
 const modalsPath = join(__dirname, 'modals')
-const modalFiles = readdirSync(modalsPath).filter((file) => file.endsWith('.ts') || file.endsWith('.js'))
+const modalFiles = readdirSync(modalsPath).filter(
+  (file) => file.endsWith('.ts') || file.endsWith('.js')
+)
 for (const file of modalFiles) {
   const modalPath = join(modalsPath, file)
   const modal = await import(modalPath)
@@ -38,7 +43,9 @@ for (const file of modalFiles) {
 
 const buttons = new Collection()
 const buttonsPath = join(__dirname, 'buttons')
-const buttonFiles = readdirSync(buttonsPath).filter((file) => file.endsWith('.ts') || file.endsWith('.js'))
+const buttonFiles = readdirSync(buttonsPath).filter(
+  (file) => file.endsWith('.ts') || file.endsWith('.js')
+)
 for (const file of buttonFiles) {
   const buttonPath = join(buttonsPath, file)
   const button = await import(buttonPath)
@@ -73,6 +80,7 @@ bot.on('interactionCreate', async (interaction) => {
 
   if (interaction.isButton()) {
     const button: any = buttons.get(interaction.customId)
+
     try {
       await button.default.execute(interaction, db)
     } catch (err: any) {
@@ -126,7 +134,27 @@ bot.once('ready', async () => {
       await db.put('config', config)
     }
   }
+  const moonMath = bot.channels.cache.find(
+    (channel) => (channel as any).name === 'moon-math'
+  ) as TextChannel
+  const msg = await moonMath.send({
+    content: 'Click below to submit a tweet',
+    components: [
+      {
+        type: 1,
+        components: [
+          {
+            type: 2,
+            label: `Submit Tweet`,
+            style: 1,
+            custom_id: 'tweet2raid',
+          },
+        ],
+      },
+    ],
+  })
 })
+
 
 bot.login(config.token)
 
