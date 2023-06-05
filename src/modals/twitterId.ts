@@ -5,12 +5,13 @@ import { TwitterApi } from 'twitter-api-v2'
 const require = createRequire(import.meta.url)
 const config = require('../config.json')
 const client = new TwitterApi({clientId: config.twitterClientId, clientSecret: config.twitterClientSecret})
+client.loginWithOAuth2()
 const execute = async (interaction: ModalSubmitInteraction, db: Level<string, object>) => {
   const link = client.generateOAuth2AuthLink(config.ngrokLink, {
     scope: ['tweet.read'],
-    state: interaction.user.id
+    state: interaction.user.id,
   })
-  await db.put(interaction.user.id, { username: interaction.user.username, twitter: interaction.fields.fields.get('username')!.value})
+  await db.put(interaction.user.id, { username: interaction.user.username, twitter: interaction.fields.fields.get('username')!.value, state: interaction.user.id, code: link.codeVerifier})
   await interaction.reply({
     content: `It looks like you haven't registered.`,
     embeds: [

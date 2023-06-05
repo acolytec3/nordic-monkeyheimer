@@ -14,11 +14,13 @@ import { fileURLToPath } from 'url'
 import { Level } from 'level'
 import * as http from 'http'
 import { TwitterRegistrationRecord, UserRecord } from './types.js'
+import { TwitterApi } from 'twitter-api-v2'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const require = createRequire(import.meta.url)
 const config = require('./config.json')
 const db = new Level<string, object>('./src/db', { valueEncoding: 'json' })
 const bot = new Client({ intents: [GatewayIntentBits.Guilds] })
+const twitterClient = new TwitterApi({clientId: config.twitterClientId, clientSecret: config.twitterClientSecret})
 
 const commands = new Collection()
 const commandsPath = join(__dirname, 'commands')
@@ -165,14 +167,16 @@ const authorizer = async (req: http.IncomingMessage, res: http.ServerResponse) =
     try {
       // Retrieve twitter registration record from DB
       const record = (await db.get(id)) as TwitterRegistrationRecord
-
+      console.log(record)
       if (record) {
         try {
           const user = (await db.get(record.username)) as UserRecord
           user.twitter = record.twitter
         } catch {
           await db.put(record.username, { twitter: record.twitter, balance: '0' })
+          await twitterClient.loginWithOAuth2({ codeVerifier: record.code, redirectUri: config.ngrokLink, code: req.url!.split('&code=')[1]})
         }
+        
         await db.del(id) // Delete twitter registration record once fulfilled
       } else {
         res.setHeader('Content-Type', 'application/json')

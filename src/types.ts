@@ -12,4 +12,5 @@ export type RaidRecord = {
 export type TwitterRegistrationRecord = {
   username: string
   twitter: string
+  code: string
 }
