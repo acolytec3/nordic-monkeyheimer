@@ -100,50 +100,7 @@ bot.on('interactionCreate', async (interaction) => {
 
 bot.once('ready', async () => {
   console.log(`We're alive and kicking!`)
-/*
-  // Webhook setup
-  const raid2earn = bot.channels.cache.find(
-    (channel) => (channel as any).name === 'raid2earn'
-  ) as TextChannel
-  if (raid2earn) {
-    const webhooks = (await raid2earn.fetchWebhooks()).filter(
-      (webhook) => webhook.owner?.id === bot.user?.id && webhook.name === 'Moon Math Raider'
-    )
-    let hook
-    if (webhooks.size === 0) {
-      // Set up a new raid2Earn webhook if not found
-      hook = await raid2earn.createWebhook({
-        name: 'Moon Math Raider',
-      })
-    } else {
-      hook = webhooks.first()
-    }
-    if (hook) {
-      config.raid2earnWebhook = hook.url
-    }
-  }
-  const tweet2raid = bot.channels.cache.find(
-    (channel) => (channel as any).name === 'tweet2raid'
-  ) as TextChannel
-  if (tweet2raid) {
-    const webhooks = (await tweet2raid.fetchWebhooks()).filter(
-      (webhook) => webhook.owner?.id === bot.user?.id && webhook.name === 'Moon Math Raider'
-    )
-    let hook
-    if (webhooks.size === 0) {
-      // Set up a new tweet2raid webhook if not found
-      hook = await tweet2raid.createWebhook({
-        name: 'Moon Math Raider',
-      })
-    } else {
-      hook = webhooks.first()
-    }
-    if (hook) {
-      config.tweet2raidWebhook = hook.url
-      await db.put('config', config)
-    }
-  }
-*/
+
   // Setup channels
   const guild = bot.guilds.cache.find((guild) => config.guildId === guild.id) as Guild
   let submitTweetChannel = guild.channels.cache.find(
@@ -213,20 +170,20 @@ bot.once('ready', async () => {
     const everyoneRole = guild.roles.cache.find((role) => role.name === '@everyone')!
     engage2Earn.permissionOverwrites.edit(everyoneRole, { SendMessages: false })
   }
-  webhooks = (await engage2Earn.fetchWebhooks()).filter(
+  let engageWebhooks = (await engage2Earn.fetchWebhooks()).filter(
     (webhook) => webhook.owner?.id === bot.user?.id && webhook.name === 'Moon Math Raider'
   )
-
-  if (webhooks.size === 0) {
+    let engageHook
+  if (engageWebhooks.size === 0) {
     // Set up a new raid2Earn webhook if not found
-    hook = await engage2Earn.createWebhook({
+    engageHook = await engage2Earn.createWebhook({
       name: 'Moon Math Raider',
     })
   } else {
-    hook = webhooks.first()
+    engageHook = engageWebhooks.first()
   }
-  if (hook) {
-    config.raid2earnWebhook = hook.url
+  if (engageHook) {
+    config.raid2earnWebhook = engageHook.url
   }
 })
 
