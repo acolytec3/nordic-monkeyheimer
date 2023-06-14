@@ -159,7 +159,6 @@ bot.once('ready', async () => {
   }
   if (hook) {
     config.tweet2raidWebhook = hook.url
-    await db.put('config', config)
   }
 
   let engage2Earn = bot.channels.cache.find(
@@ -182,9 +181,11 @@ bot.once('ready', async () => {
   } else {
     engageHook = engageWebhooks.first()
   }
+
   if (engageHook) {
     config.raid2earnWebhook = engageHook.url
   }
+  await db.put('config', config)
 })
 
 bot.login(config.token)
