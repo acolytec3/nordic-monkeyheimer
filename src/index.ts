@@ -205,13 +205,13 @@ bot.once('ready', async () => {
     await db.put('config', config)
   }
 
-  const engage2Earn = bot.channels.cache.find(
+  let engage2Earn = bot.channels.cache.find(
     (channel) => (channel as any).name === 'engage-to-earn'
   ) as TextChannel
   if (!engage2Earn) {
-    admin = await guild.channels.create({ type: ChannelType.GuildText, name: 'moon-math-admin' })
+    engage2Earn = await guild.channels.create({ type: ChannelType.GuildText, name: 'engage-to-earn' })
     const everyoneRole = guild.roles.cache.find((role) => role.name === '@everyone')!
-    admin.permissionOverwrites.edit(everyoneRole, { ViewChannel: false })
+    engage2Earn.permissionOverwrites.edit(everyoneRole, { SendMessages: false })
   }
   webhooks = (await engage2Earn.fetchWebhooks()).filter(
     (webhook) => webhook.owner?.id === bot.user?.id && webhook.name === 'Moon Math Raider'
