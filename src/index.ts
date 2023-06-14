@@ -6,6 +6,7 @@ import {
   createChannel,
   HTTPError,
   MessagePayload,
+  ChannelType,
 } from 'discord.js'
 import { readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -15,6 +16,7 @@ import { Level } from 'level'
 import * as http from 'http'
 import { TwitterRegistrationRecord, UserRecord } from './types.js'
 import { TwitterApi } from 'twitter-api-v2'
+import { Guild } from 'discord.js'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const require = createRequire(import.meta.url)
 const config = require('./config.json')
@@ -95,6 +97,8 @@ bot.on('interactionCreate', async (interaction) => {
 
 bot.once('ready', async () => {
   console.log(`We're alive and kicking!`)
+
+  // Webhook setup
   const raid2earn = bot.channels.cache.find(
     (channel) => (channel as any).name === 'raid2earn'
   ) as TextChannel
@@ -136,6 +140,8 @@ bot.once('ready', async () => {
       await db.put('config', config)
     }
   }
+
+  // Post tweet2raid message
   const moonMath = bot.channels.cache.find(
     (channel) => (channel as any).name === 'moon-math'
   ) as TextChannel
@@ -155,6 +161,19 @@ bot.once('ready', async () => {
       },
     ],
   })
+
+  // Setup channels
+  const guild = bot.guilds.cache.find(config.guildId) as Guild
+  let admin = guild.channels.cache.find(
+    (channel) => (channel as any).name === 'moon-math-admin'
+  ) as TextChannel
+  if (!admin) {
+     admin = await guild.channels.create({ type: ChannelType.GuildText, name: 'moon-math-admin' })
+     const everyoneRole = guild.roles.cache.find(role => role.name === '@everyone')!
+     console.log(everyoneRole)
+     admin.permissionOverwrites.edit(everyoneRole, { ViewChannel: false})
+     admin.send('hello')
+  }
 })
 
 
