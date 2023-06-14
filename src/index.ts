@@ -22,7 +22,10 @@ const require = createRequire(import.meta.url)
 const config = require('./config.json')
 const db = new Level<string, object>('./src/db', { valueEncoding: 'json' })
 const bot = new Client({ intents: [GatewayIntentBits.Guilds] })
-const twitterClient = new TwitterApi({clientId: config.twitterClientId, clientSecret: config.twitterClientSecret})
+const twitterClient = new TwitterApi({
+  clientId: config.twitterClientId,
+  clientSecret: config.twitterClientSecret,
+})
 
 const commands = new Collection()
 const commandsPath = join(__dirname, 'commands')
@@ -140,8 +143,8 @@ bot.once('ready', async () => {
       await db.put('config', config)
     }
   }
+  /*
 
-  // Post tweet2raid message
   const moonMath = bot.channels.cache.find(
     (channel) => (channel as any).name === 'moon-math'
   ) as TextChannel
@@ -161,22 +164,44 @@ bot.once('ready', async () => {
       },
     ],
   })
-
+*/
   // Setup channels
   const guild = bot.guilds.cache.find((guild) => config.guildId === guild.id) as Guild
   let admin = guild.channels.cache.find(
     (channel) => (channel as any).name === 'moon-math-admin'
   ) as TextChannel
   if (!admin) {
-     admin = await guild.channels.create({ type: ChannelType.GuildText, name: 'moon-math-admin' })
+    admin = await guild.channels.create({ type: ChannelType.GuildText, name: 'moon-math-admin' })
+    const everyoneRole = guild.roles.cache.find((role) => role.name === '@everyone')!
+    admin.permissionOverwrites.edit(everyoneRole, { ViewChannel: false })
   }
-     const everyoneRole = guild.roles.cache.find(role => role.name === '@everyone')!
-     console.log(everyoneRole)
-     admin.permissionOverwrites.edit(everyoneRole, { ViewChannel: false})
-     admin.send('hello')
-  
-})
 
+  try {
+    const lastMsg = await db.get('lastTweet2RaidMsg') as { id: string }
+    await admin.messages.delete(lastMsg.id)
+  } catch (err) {
+    console.log(err)
+  }
+
+  // Post tweet2raid message
+  const msg = await admin.send({
+    content: 'Click below to submit a tweet',
+    components: [
+      {
+        type: 1,
+        components: [
+          {
+            type: 2,
+            label: `Submit Tweet`,
+            style: 1,
+            custom_id: 'tweet2raid',
+          },
+        ],
+      },
+    ],
+  })
+  db.put('lastTweet2RaidMsg', { id: msg.id })
+})
 
 bot.login(config.token)
 
@@ -194,9 +219,13 @@ const authorizer = async (req: http.IncomingMessage, res: http.ServerResponse) =
           user.twitter = record.twitter
         } catch {
           await db.put(record.username, { twitter: record.twitter, balance: '0' })
-          await twitterClient.loginWithOAuth2({ codeVerifier: record.code, redirectUri: config.ngrokLink, code: req.url!.split('&code=')[1]})
+          await twitterClient.loginWithOAuth2({
+            codeVerifier: record.code,
+            redirectUri: config.ngrokLink,
+            code: req.url!.split('&code=')[1],
+          })
         }
-        
+
         await db.del(id) // Delete twitter registration record once fulfilled
       } else {
         res.setHeader('Content-Type', 'application/json')
