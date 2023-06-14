@@ -169,11 +169,12 @@ bot.once('ready', async () => {
   ) as TextChannel
   if (!admin) {
      admin = await guild.channels.create({ type: ChannelType.GuildText, name: 'moon-math-admin' })
+  }
      const everyoneRole = guild.roles.cache.find(role => role.name === '@everyone')!
      console.log(everyoneRole)
      admin.permissionOverwrites.edit(everyoneRole, { ViewChannel: false})
      admin.send('hello')
-  }
+  
 })
 
 
