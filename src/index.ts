@@ -103,6 +103,7 @@ bot.once('ready', async () => {
 
   // Setup channels
   const guild = bot.guilds.cache.find((guild) => config.guildId === guild.id) as Guild
+  
   let submitTweetChannel = guild.channels.cache.find(
     (channel) => (channel as any).name === 'moon-math-admin'
   ) as TextChannel
@@ -111,6 +112,8 @@ bot.once('ready', async () => {
       type: ChannelType.GuildText,
       name: 'submit-tweet',
     })
+    const everyoneRole = guild.roles.cache.find((role) => role.name === '@everyone')!
+    submitTweetChannel.permissionOverwrites.edit(everyoneRole, { SendMessages: false })
   }
 
   try {
