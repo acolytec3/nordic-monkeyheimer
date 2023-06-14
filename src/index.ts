@@ -163,7 +163,7 @@ bot.once('ready', async () => {
   })
 
   // Setup channels
-  const guild = bot.guilds.cache.find(config.guildId) as Guild
+  const guild = bot.guilds.cache.find((guild) => config.guildId === guild.id) as Guild
   let admin = guild.channels.cache.find(
     (channel) => (channel as any).name === 'moon-math-admin'
   ) as TextChannel
