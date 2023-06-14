@@ -100,7 +100,7 @@ bot.on('interactionCreate', async (interaction) => {
 
 bot.once('ready', async () => {
   console.log(`We're alive and kicking!`)
-
+/*
   // Webhook setup
   const raid2earn = bot.channels.cache.find(
     (channel) => (channel as any).name === 'raid2earn'
@@ -143,44 +143,24 @@ bot.once('ready', async () => {
       await db.put('config', config)
     }
   }
-  /*
-
-  const moonMath = bot.channels.cache.find(
-    (channel) => (channel as any).name === 'moon-math'
-  ) as TextChannel
-  const msg = await moonMath.send({
-    content: 'Click below to submit a tweet',
-    components: [
-      {
-        type: 1,
-        components: [
-          {
-            type: 2,
-            label: `Submit Tweet`,
-            style: 1,
-            custom_id: 'tweet2raid',
-          },
-        ],
-      },
-    ],
-  })
 */
   // Setup channels
   const guild = bot.guilds.cache.find((guild) => config.guildId === guild.id) as Guild
-  let admin = guild.channels.cache.find(
+  let submitTweetChannel = guild.channels.cache.find(
     (channel) => (channel as any).name === 'moon-math-admin'
   ) as TextChannel
-  if (!admin) {
-    admin = await guild.channels.create({ type: ChannelType.GuildText, name: 'moon-math-admin' })
-    const everyoneRole = guild.roles.cache.find((role) => role.name === '@everyone')!
-    admin.permissionOverwrites.edit(everyoneRole, { ViewChannel: false })
+  if (!submitTweetChannel) {
+    submitTweetChannel = await guild.channels.create({
+      type: ChannelType.GuildText,
+      name: 'submit-tweet',
+    })
   }
 
   try {
     const lastMsg = (await db.get('lastTweet2RaidMsg')) as { id: string }
     if (lastMsg.id !== undefined) {
       // Post tweet2raid message if not already found
-      const msg = await admin.send({
+      const msg = await submitTweetChannel.send({
         content: 'Click below to submit a tweet',
         components: [
           {
@@ -199,6 +179,55 @@ bot.once('ready', async () => {
       db.put('lastTweet2RaidMsg', { id: msg.id })
     }
   } catch {}
+
+  let admin = guild.channels.cache.find(
+    (channel) => (channel as any).name === 'moon-math-admin'
+  ) as TextChannel
+  if (!admin) {
+    admin = await guild.channels.create({ type: ChannelType.GuildText, name: 'moon-math-admin' })
+    const everyoneRole = guild.roles.cache.find((role) => role.name === '@everyone')!
+    admin.permissionOverwrites.edit(everyoneRole, { ViewChannel: false })
+  }
+  let webhooks = (await admin.fetchWebhooks()).filter(
+    (webhook) => webhook.owner?.id === bot.user?.id && webhook.name === 'Moon Math Raider'
+  )
+  let hook
+  if (webhooks.size === 0) {
+    // Set up a new tweet2raid webhook if not found
+    hook = await admin.createWebhook({
+      name: 'Moon Math Raider',
+    })
+  } else {
+    hook = webhooks.first()
+  }
+  if (hook) {
+    config.tweet2raidWebhook = hook.url
+    await db.put('config', config)
+  }
+
+  const engage2Earn = bot.channels.cache.find(
+    (channel) => (channel as any).name === 'engage-to-earn'
+  ) as TextChannel
+  if (!engage2Earn) {
+    admin = await guild.channels.create({ type: ChannelType.GuildText, name: 'moon-math-admin' })
+    const everyoneRole = guild.roles.cache.find((role) => role.name === '@everyone')!
+    admin.permissionOverwrites.edit(everyoneRole, { ViewChannel: false })
+  }
+  webhooks = (await engage2Earn.fetchWebhooks()).filter(
+    (webhook) => webhook.owner?.id === bot.user?.id && webhook.name === 'Moon Math Raider'
+  )
+
+  if (webhooks.size === 0) {
+    // Set up a new raid2Earn webhook if not found
+    hook = await engage2Earn.createWebhook({
+      name: 'Moon Math Raider',
+    })
+  } else {
+    hook = webhooks.first()
+  }
+  if (hook) {
+    config.raid2earnWebhook = hook.url
+  }
 })
 
 bot.login(config.token)
