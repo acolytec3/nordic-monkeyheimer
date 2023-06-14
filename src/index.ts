@@ -177,30 +177,28 @@ bot.once('ready', async () => {
   }
 
   try {
-    const lastMsg = await db.get('lastTweet2RaidMsg') as { id: string }
-    await admin.messages.delete(lastMsg.id)
-  } catch (err) {
-    console.log(err)
-  }
-
-  // Post tweet2raid message
-  const msg = await admin.send({
-    content: 'Click below to submit a tweet',
-    components: [
-      {
-        type: 1,
+    const lastMsg = (await db.get('lastTweet2RaidMsg')) as { id: string }
+    if (lastMsg.id !== undefined) {
+      // Post tweet2raid message if not already found
+      const msg = await admin.send({
+        content: 'Click below to submit a tweet',
         components: [
           {
-            type: 2,
-            label: `Submit Tweet`,
-            style: 1,
-            custom_id: 'tweet2raid',
+            type: 1,
+            components: [
+              {
+                type: 2,
+                label: `Submit Tweet`,
+                style: 1,
+                custom_id: 'tweet2raid',
+              },
+            ],
           },
         ],
-      },
-    ],
-  })
-  db.put('lastTweet2RaidMsg', { id: msg.id })
+      })
+      db.put('lastTweet2RaidMsg', { id: msg.id })
+    }
+  } catch {}
 })
 
 bot.login(config.token)
