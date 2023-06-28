@@ -102,8 +102,10 @@ bot.once('ready', async () => {
   console.log(`We're alive and kicking!`)
 
   // Setup channels
-  const guild = bot.guilds.cache.find((guild) => config.guildId === guild.id) as Guild
-  
+  let guild = bot.guilds.cache.find((guild) => config.guildId === guild.id)
+  if (guild === undefined) {
+    guild = await bot.guilds.fetch(config.guildId)
+  }
   let submitTweetChannel = guild.channels.cache.find(
     (channel) => (channel as any).name === 'moon-math-admin'
   ) as TextChannel
