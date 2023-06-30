@@ -7,6 +7,7 @@ import {
   HTTPError,
   MessagePayload,
   ChannelType,
+  CategoryChannel,
 } from 'discord.js'
 import { readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -106,6 +107,13 @@ bot.once('ready', async () => {
   if (guild === undefined) {
     guild = await bot.guilds.fetch(config.guildId)
   }
+  let moonMathCategory = guild.channels.cache.find((channel: any) => channel.name === 'moon-math')
+  if (moonMathCategory === undefined!) {
+    moonMathCategory = await guild.channels.create({
+      type: ChannelType.GuildCategory,
+      name: 'moon-math',
+    })
+  }
   let submitTweetChannel = guild.channels.cache.find(
     (channel) => (channel as any).name === 'moon-math-admin'
   ) as TextChannel
@@ -113,6 +121,7 @@ bot.once('ready', async () => {
     submitTweetChannel = await guild.channels.create({
       type: ChannelType.GuildText,
       name: 'submit-tweet',
+      parent: moonMathCategory!.id,
     })
     const everyoneRole = guild.roles.cache.find((role) => role.name === '@everyone')!
     submitTweetChannel.permissionOverwrites.edit(everyoneRole, { SendMessages: false })
@@ -145,7 +154,11 @@ bot.once('ready', async () => {
     (channel) => (channel as any).name === 'moon-math-admin'
   ) as TextChannel
   if (!admin) {
-    admin = await guild.channels.create({ type: ChannelType.GuildText, name: 'moon-math-admin' })
+    admin = await guild.channels.create({
+      type: ChannelType.GuildText,
+      name: 'moon-math-admin',
+      parent: moonMathCategory!.id,
+    })
     const everyoneRole = guild.roles.cache.find((role) => role.name === '@everyone')!
     admin.permissionOverwrites.edit(everyoneRole, { ViewChannel: false })
   }
@@ -172,6 +185,7 @@ bot.once('ready', async () => {
     engage2Earn = await guild.channels.create({
       type: ChannelType.GuildText,
       name: 'engage-to-earn',
+      parent: moonMathCategory!.id,
     })
     const everyoneRole = guild.roles.cache.find((role) => role.name === '@everyone')!
     engage2Earn.permissionOverwrites.edit(everyoneRole, { SendMessages: false })
