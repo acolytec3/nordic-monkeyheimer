@@ -178,7 +178,7 @@ bot.once('ready', async () => {
     config.tweet2raidWebhook = hook.url
   }
 
-  let engage2Earn = bot.channels.cache.find(
+  let engage2Earn = guild.channels.cache.find(
     (channel) => (channel as any).name === 'engage-to-earn'
   ) as TextChannel
   if (!engage2Earn) {
