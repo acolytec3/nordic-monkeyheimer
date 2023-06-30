@@ -36,7 +36,7 @@ const execute = async (interaction: ButtonInteraction, db: Level<string, object>
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        content: `Raid this tweet - ${tweetUrl}`,
+        content: `Raid this tweet for ${reward?.value ?? '100'} $${config.currency} - ${tweetUrl}`,
         components: [
           {
             type: 1,
